@@ -364,24 +364,35 @@ class Game {
         
         console.log('⏯️ 正在恢复游戏...');
         
-        // 先恢复 conductor
-        conductor.start();
-        
         // 恢复音乐
         if (this.hasMusic) {
             await audioManager.play();
         }
         
-        // 重置 lastFrameTime 并启动游戏循环
+        // 重置状态并启动游戏循环
         this.isRunning = true;
         
         // 使用 requestAnimationFrame 来正确启动游戏循环
+        // 在回调中同步设置 conductor 的时间基准，确保时间戳匹配
         requestAnimationFrame((timestamp) => {
+            // 在这里启动 conductor，使用 requestAnimationFrame 提供的 timestamp
+            conductor.performanceStartTime = timestamp;
+            conductor.isRunning = true;
+            
+            // 如果是从暂停恢复，使用保存的时间
+            if (conductor.pausedTime > 0) {
+                conductor.timeOffset = conductor.pausedTime;
+                conductor.pausedTime = 0;
+            }
+            
+            console.log('🎵 Conductor resumed at', conductor.timeOffset.toFixed(2), 's');
+            
+            // 启动游戏循环
             this.lastFrameTime = timestamp;
             this.gameLoop(timestamp);
         });
         
-        console.log('▶️ 游戏已继续');
+        console.log('▶️ 游戏恢复中...');
     }
     
     /**
