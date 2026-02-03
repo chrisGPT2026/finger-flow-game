@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>指尖跳动</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 时间显示区 -->
+        <div id="time-display">Current Time: 0.00s</div>
+        
+        <!-- 游戏信息面板 -->
+        <div id="game-info">
+            <div id="score-display">分数: 0</div>
+            <div id="combo-display" style="display: none;">0 COMBO</div>
+            <div id="music-info-display" style="display: none;"></div>
+        </div>
+        
+        <!-- 判定文字显示 -->
+        <div id="judgment-display"></div>
+        
+        <!-- 游戏主区域 -->
+        <div id="game-area">
+            <!-- 4条音符轨道 -->
+            <div class="track" data-track="0">
+                <div class="track-line"></div>
+                <div class="key-hint">Z</div>
+            </div>
+            <div class="track" data-track="1">
+                <div class="track-line"></div>
+                <div class="key-hint">C</div>
+            </div>
+            <div class="track" data-track="2">
+                <div class="track-line"></div>
+                <div class="key-hint">←</div>
+            </div>
+            <div class="track" data-track="3">
+                <div class="track-line"></div>
+                <div class="key-hint">→</div>
+            </div>
+        </div>
+        
+        <!-- 底部判定框区域 -->
+        <div id="judgment-area">
+            <div class="judgment-box" data-track="0">
+                <div class="judgment-glow"></div>
+                <span class="judgment-key">Z</span>
+            </div>
+            <div class="judgment-box" data-track="1">
+                <div class="judgment-glow"></div>
+                <span class="judgment-key">C</span>
+            </div>
+            <div class="judgment-box" data-track="2">
+                <div class="judgment-glow"></div>
+                <span class="judgment-key">←</span>
+            </div>
+            <div class="judgment-box" data-track="3">
+                <div class="judgment-glow"></div>
+                <span class="judgment-key">→</span>
+            </div>
+        </div>
+        
+        <!-- 游戏标题 -->
+        <div id="game-title">
+            <h1>指尖跳动</h1>
+            <p class="subtitle">Finger Flow</p>
+        </div>
+        
+        <!-- 音乐加载界面 -->
+        <div id="music-loader" class="music-loader">
+            <div class="loader-content">
+                <h2>🎵 加载音乐</h2>
+                <p class="music-title">District Four - Kevin MacLeod</p>
+                <div id="music-status" class="status-text">准备加载音乐...</div>
+                
+                <!-- 启动游戏按钮 -->
+                <div id="start-game-container" style="display: none;">
+                    <button id="start-game-btn" class="game-button primary-large">🎮 启动游戏</button>
+                    <p class="hint-text">按 <kbd>Enter</kbd> 启动</p>
+                </div>
+                
+                <div class="loader-buttons">
+                    <button id="load-music-btn" class="game-button">加载音乐文件</button>
+                    <button id="start-without-music-btn" class="game-button secondary">无音乐开始（测试模式）</button>
+                </div>
+                <input type="file" id="music-file-input" accept="audio/*" style="display: none;">
+                <div class="music-info">
+                    <p>💡 <strong>自动加载:</strong> 将 MP3 文件重命名为 <code>district-four.mp3</code>，放入 <code>music/</code> 文件夹</p>
+                    <p>💡 <strong>手动加载:</strong> 点击"加载音乐文件"，选择本地 MP3 文件</p>
+                    <p>💡 <strong>下载音乐:</strong> <a href="https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600039" target="_blank">District Four - 点击下载</a></p>
+                    <p>💡 <strong>测试模式:</strong> 点击"无音乐开始"进行测试</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 音频元素 -->
+        <audio id="game-audio" preload="auto"></audio>
+    </div>
+
+    <script src="js/conductor.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/note.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

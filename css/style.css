@@ -1,0 +1,826 @@
+/* 赛博朋克风格 - 指尖跳动 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Courier New', monospace;
+    color: #0ff;
+    touch-action: none; /* 禁止触摸滚动 */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#game-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a0033 100%);
+    overflow: hidden;
+}
+
+/* 时间显示 */
+#time-display {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+    z-index: 100;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* 游戏标题 */
+#game-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 50;
+    pointer-events: none;
+}
+
+#game-title h1 {
+    font-size: 72px;
+    color: #ff00ff;
+    text-shadow: 
+        0 0 10px #ff00ff,
+        0 0 20px #ff00ff,
+        0 0 30px #ff00ff,
+        0 0 40px #ff00ff;
+    margin-bottom: 10px;
+    animation: titlePulse 2s ease-in-out infinite;
+}
+
+#game-title .subtitle {
+    font-size: 24px;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff;
+    letter-spacing: 4px;
+}
+
+@keyframes titlePulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+/* 游戏主区域 */
+#game-area {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 600px;
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+}
+
+/* 音符轨道 */
+.track {
+    position: relative;
+    flex: 1;
+    margin: 0 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.track-line {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        rgba(0, 255, 255, 0) 0%, 
+        rgba(0, 255, 255, 0.3) 50%, 
+        rgba(0, 255, 255, 0.8) 100%
+    );
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.key-hint {
+    position: absolute;
+    top: 20%;
+    font-size: 48px;
+    color: rgba(0, 255, 255, 0.3);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    font-weight: bold;
+}
+
+/* 判定区域 */
+#judgment-area {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 600px;
+    height: 100px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 10;
+}
+
+/* 判定框 */
+.judgment-box {
+    position: relative;
+    width: 22%;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid #0ff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.05s ease;
+    cursor: pointer;
+    box-shadow: 
+        0 0 10px rgba(0, 255, 255, 0.5),
+        inset 0 0 20px rgba(0, 255, 255, 0.1);
+}
+
+.judgment-box .judgment-key {
+    font-size: 36px;
+    color: #0ff;
+    font-weight: bold;
+    text-shadow: 0 0 10px #0ff;
+    z-index: 2;
+}
+
+/* 发光效果层 */
+.judgment-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0, 255, 255, 0) 0%, rgba(0, 255, 255, 0) 100%);
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.05s ease;
+}
+
+/* 激活状态 - 高亮闪烁 */
+.judgment-box.active {
+    border-color: #ff00ff;
+    background: rgba(255, 0, 255, 0.3);
+    transform: scale(1.1);
+    box-shadow: 
+        0 0 30px rgba(255, 0, 255, 1),
+        0 0 50px rgba(255, 0, 255, 0.8),
+        inset 0 0 30px rgba(255, 0, 255, 0.5);
+}
+
+.judgment-box.active .judgment-glow {
+    opacity: 1;
+    background: radial-gradient(circle, rgba(255, 0, 255, 0.8) 0%, rgba(255, 0, 255, 0) 70%);
+    animation: glowPulse 0.3s ease-out;
+}
+
+.judgment-box.active .judgment-key {
+    color: #fff;
+    text-shadow: 
+        0 0 20px #ff00ff,
+        0 0 30px #ff00ff,
+        0 0 40px #ff00ff;
+}
+
+@keyframes glowPulse {
+    0% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% { 
+        opacity: 0;
+        transform: scale(1.5);
+    }
+}
+
+/* 响应式设计 - 移动端 */
+@media (max-width: 768px) {
+    #time-display {
+        font-size: 18px;
+        top: 10px;
+        left: 10px;
+    }
+    
+    #game-title h1 {
+        font-size: 48px;
+    }
+    
+    #game-title .subtitle {
+        font-size: 18px;
+    }
+    
+    #game-area {
+        width: 95%;
+    }
+    
+    #judgment-area {
+        width: 95%;
+        bottom: 20px;
+        height: 80px;
+    }
+    
+    .judgment-box {
+        height: 70px;
+    }
+    
+    .judgment-box .judgment-key {
+        font-size: 28px;
+    }
+    
+    .key-hint {
+        font-size: 36px;
+    }
+}
+
+/* 音符样式 */
+.note {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 60px;
+    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+    border: 2px solid #fff;
+    border-radius: 8px;
+    box-shadow: 
+        0 0 20px rgba(255, 0, 255, 0.8),
+        0 0 40px rgba(0, 255, 255, 0.6),
+        inset 0 0 20px rgba(255, 255, 255, 0.3);
+    z-index: 5;
+    transition: all 0.1s ease;
+}
+
+.note-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(255, 0, 255, 0.6) 0%, rgba(0, 255, 255, 0) 70%);
+    border-radius: 50%;
+    animation: noteGlowPulse 1s ease-in-out infinite;
+}
+
+@keyframes noteGlowPulse {
+    0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+/* 音符接近判定线时 */
+.note.near-judgment {
+    border-color: #ffff00;
+    box-shadow: 
+        0 0 30px rgba(255, 255, 0, 1),
+        0 0 50px rgba(255, 0, 255, 0.8),
+        inset 0 0 30px rgba(255, 255, 255, 0.5);
+}
+
+/* 音符被击中 */
+.note.hit {
+    animation: noteHit 0.3s ease-out forwards;
+}
+
+@keyframes noteHit {
+    0% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%) scale(2);
+        opacity: 0;
+    }
+}
+
+/* 不同判定的颜色 */
+.note.hit.perfect {
+    background: radial-gradient(circle, #ffff00 0%, #ff00ff 100%);
+    box-shadow: 0 0 50px rgba(255, 255, 0, 1);
+}
+
+.note.hit.great {
+    background: radial-gradient(circle, #00ffff 0%, #0099ff 100%);
+    box-shadow: 0 0 40px rgba(0, 255, 255, 1);
+}
+
+.note.hit.good {
+    background: radial-gradient(circle, #00ff00 0%, #00cc00 100%);
+    box-shadow: 0 0 30px rgba(0, 255, 0, 1);
+}
+
+/* 音符错过 */
+.note.missed {
+    animation: noteMiss 0.3s ease-out forwards;
+}
+
+@keyframes noteMiss {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+}
+
+/* 游戏信息面板 */
+#game-info {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-align: right;
+    z-index: 100;
+    font-size: 20px;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff;
+}
+
+#game-info > div {
+    margin-bottom: 8px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+#combo-display {
+    font-size: 32px;
+    color: #ff00ff;
+    text-shadow: 
+        0 0 10px #ff00ff,
+        0 0 20px #ff00ff;
+}
+
+#score-display {
+    color: #ffff00;
+    text-shadow: 0 0 10px #ffff00;
+}
+
+#music-info-display {
+    margin-top: 20px;
+    opacity: 1;
+    transition: opacity 1s ease;
+}
+
+.music-meta {
+    text-align: right;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+}
+
+.music-title {
+    font-size: 16px;
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.music-artist {
+    font-size: 14px;
+    color: #0ff;
+    text-shadow: 0 0 5px #0ff;
+    margin-bottom: 5px;
+}
+
+.music-bpm {
+    font-size: 14px;
+    color: #ffff00;
+    text-shadow: 0 0 5px #ffff00;
+    font-weight: bold;
+}
+
+/* 判定文字显示 */
+#judgment-display {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 64px;
+    font-weight: bold;
+    z-index: 200;
+    pointer-events: none;
+    animation: judgmentPop 0.5s ease-out;
+    text-shadow: 
+        0 0 20px currentColor,
+        0 0 40px currentColor;
+}
+
+.judgment-text.perfect {
+    color: #ffff00;
+}
+
+.judgment-text.great {
+    color: #00ffff;
+}
+
+.judgment-text.good {
+    color: #00ff00;
+}
+
+.judgment-text.miss {
+    color: #ff0000;
+}
+
+@keyframes judgmentPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    30% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+/* 横屏提示 */
+@media (orientation: landscape) and (max-height: 500px) {
+    #game-title h1 {
+        font-size: 36px;
+    }
+    
+    #game-title .subtitle {
+        font-size: 14px;
+    }
+    
+    .key-hint {
+        top: 10%;
+        font-size: 24px;
+    }
+    
+    #judgment-display {
+        font-size: 48px;
+    }
+}
+
+/* 音乐加载界面 */
+.music-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
+}
+
+.music-loader.hidden {
+    display: none;
+}
+
+.loader-content {
+    text-align: center;
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(0, 255, 255, 0.2) 100%);
+    border: 2px solid #0ff;
+    border-radius: 20px;
+    box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.5),
+        inset 0 0 30px rgba(0, 255, 255, 0.1);
+    max-width: 600px;
+}
+
+.loader-content h2 {
+    font-size: 48px;
+    color: #ff00ff;
+    text-shadow: 
+        0 0 10px #ff00ff,
+        0 0 20px #ff00ff;
+    margin-bottom: 20px;
+}
+
+.music-title {
+    font-size: 24px;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.status-text {
+    font-size: 18px;
+    color: #fff;
+    margin: 20px 0;
+    min-height: 30px;
+}
+
+.loader-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.game-button {
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+    border: 2px solid #0ff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    font-family: 'Courier New', monospace;
+}
+
+.game-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+}
+
+.game-button:active {
+    transform: scale(0.95);
+}
+
+.game-button.secondary {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.3) 0%, rgba(138, 43, 226, 0.3) 100%);
+}
+
+.game-button.primary-large {
+    font-size: 32px;
+    padding: 25px 60px;
+    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+    animation: buttonPulse 2s ease-in-out infinite;
+    box-shadow: 
+        0 0 30px rgba(255, 0, 255, 0.8),
+        0 0 50px rgba(0, 255, 255, 0.6);
+}
+
+.game-button.primary-large:hover {
+    transform: scale(1.1);
+    box-shadow: 
+        0 0 40px rgba(255, 0, 255, 1),
+        0 0 70px rgba(0, 255, 255, 0.8);
+}
+
+@keyframes buttonPulse {
+    0%, 100% {
+        box-shadow: 
+            0 0 30px rgba(255, 0, 255, 0.8),
+            0 0 50px rgba(0, 255, 255, 0.6);
+    }
+    50% {
+        box-shadow: 
+            0 0 40px rgba(255, 0, 255, 1),
+            0 0 70px rgba(0, 255, 255, 0.9);
+    }
+}
+
+.hint-text {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #0ff;
+    text-shadow: 0 0 5px #0ff;
+}
+
+.hint-text kbd {
+    display: inline-block;
+    padding: 5px 12px;
+    background: rgba(0, 255, 255, 0.2);
+    border: 2px solid #0ff;
+    border-radius: 5px;
+    color: #ffff00;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #ffff00;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+#start-game-container {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.music-info {
+    margin-top: 30px;
+    text-align: left;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.music-info p {
+    font-size: 14px;
+    color: #0ff;
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.music-info a {
+    color: #ff00ff;
+    text-decoration: none;
+    text-shadow: 0 0 5px #ff00ff;
+}
+
+.music-info a:hover {
+    text-decoration: underline;
+}
+
+.music-info code {
+    background: rgba(0, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #ffff00;
+    font-family: 'Courier New', monospace;
+}
+
+/* 暂停遮罩 */
+.pause-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.pause-content {
+    text-align: center;
+    padding: 50px;
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(0, 255, 255, 0.3) 100%);
+    border: 3px solid #0ff;
+    border-radius: 20px;
+    box-shadow: 
+        0 0 40px rgba(0, 255, 255, 0.6),
+        inset 0 0 40px rgba(0, 255, 255, 0.1);
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { 
+        box-shadow: 
+            0 0 40px rgba(0, 255, 255, 0.6),
+            inset 0 0 40px rgba(0, 255, 255, 0.1);
+    }
+    50% { 
+        box-shadow: 
+            0 0 60px rgba(255, 0, 255, 0.8),
+            inset 0 0 60px rgba(255, 0, 255, 0.2);
+    }
+}
+
+.pause-content h2 {
+    font-size: 64px;
+    color: #ff00ff;
+    text-shadow: 
+        0 0 20px #ff00ff,
+        0 0 40px #ff00ff,
+        0 0 60px #ff00ff;
+    margin-bottom: 30px;
+    animation: titleBounce 1s ease-in-out infinite;
+}
+
+@keyframes titleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.pause-content p {
+    font-size: 24px;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff;
+    margin: 15px 0;
+    letter-spacing: 2px;
+}
+
+.pause-content strong {
+    color: #ffff00;
+    text-shadow: 0 0 15px #ffff00;
+    font-size: 28px;
+    padding: 5px 10px;
+    background: rgba(255, 255, 0, 0.1);
+    border-radius: 5px;
+}
+
+.pause-stats {
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 255, 255, 0.5);
+}
+
+.pause-stats > div {
+    font-size: 28px;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff;
+    margin: 10px 0;
+}
+
+.pause-stats span {
+    color: #ff00ff;
+    text-shadow: 0 0 15px #ff00ff;
+    font-weight: bold;
+    font-size: 32px;
+}
+
+/* 移动端响应式 */
+@media (max-width: 768px) {
+    #game-info {
+        font-size: 16px;
+        top: 10px;
+        right: 10px;
+    }
+    
+    #combo-display {
+        font-size: 24px;
+    }
+    
+    #judgment-display {
+        font-size: 48px;
+    }
+    
+    .note {
+        height: 50px;
+    }
+    
+    .loader-content {
+        padding: 20px;
+        max-width: 90%;
+    }
+    
+    .loader-content h2 {
+        font-size: 32px;
+    }
+    
+    .music-title {
+        font-size: 18px;
+    }
+    
+    .game-button {
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+    
+    .loader-buttons {
+        flex-direction: column;
+    }
+    
+    .pause-content {
+        padding: 30px;
+        max-width: 90%;
+    }
+    
+    .pause-content h2 {
+        font-size: 48px;
+    }
+    
+    .pause-content p {
+        font-size: 18px;
+    }
+    
+    .pause-content strong {
+        font-size: 22px;
+    }
+    
+    .pause-stats > div {
+        font-size: 20px;
+    }
+    
+    .pause-stats span {
+        font-size: 24px;
+    }
+}
