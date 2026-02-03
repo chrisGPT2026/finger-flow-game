@@ -670,6 +670,7 @@ body, html {
     align-items: center;
     backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease;
+    pointer-events: none; /* 允许键盘事件穿透 */
 }
 
 @keyframes fadeIn {
@@ -687,6 +688,7 @@ body, html {
         0 0 40px rgba(0, 255, 255, 0.6),
         inset 0 0 40px rgba(0, 255, 255, 0.1);
     animation: pulseGlow 2s ease-in-out infinite;
+    pointer-events: auto; /* 恢复内容区的点击事件 */
 }
 
 @keyframes pulseGlow {
@@ -755,6 +757,35 @@ body, html {
     text-shadow: 0 0 15px #ff00ff;
     font-weight: bold;
     font-size: 32px;
+}
+
+/* 版权信息 */
+#copyright {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 11px;
+    color: rgba(0, 255, 255, 0.5);
+    z-index: 100;
+    width: 90%;
+    max-width: 600px;
+}
+
+#copyright p {
+    margin: 2px 0;
+    line-height: 1.4;
+}
+
+#copyright a {
+    color: rgba(0, 255, 255, 0.7);
+    text-decoration: none;
+}
+
+#copyright a:hover {
+    color: #0ff;
+    text-decoration: underline;
 }
 
 /* 移动端响应式 */

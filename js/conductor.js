@@ -13,6 +13,9 @@ class Conductor {
         
         // 用于高精度计时
         this.performanceStartTime = null;
+        
+        // 暂停时保存的时间
+        this.pausedTime = 0;
     }
     
     /**
@@ -21,19 +24,30 @@ class Conductor {
     start() {
         if (this.isRunning) return;
         
+        // 如果是从暂停恢复，使用保存的时间
+        if (this.pausedTime > 0) {
+            this.timeOffset = this.pausedTime;
+            this.pausedTime = 0;
+        }
+        
         this.performanceStartTime = performance.now();
         this.startTime = Date.now();
         this.isRunning = true;
         
-        console.log('🎵 Conductor started');
+        console.log('🎵 Conductor started/resumed at', this.timeOffset.toFixed(2), 's');
     }
     
     /**
      * 暂停计时器
      */
     pause() {
+        if (!this.isRunning) return;
+        
+        // 保存当前时间
+        this.pausedTime = this.currentTime;
         this.isRunning = false;
-        console.log('⏸️ Conductor paused');
+        
+        console.log('⏸️ Conductor paused at', this.pausedTime.toFixed(2), 's');
     }
     
     /**
@@ -45,6 +59,7 @@ class Conductor {
         this.isRunning = false;
         this.performanceStartTime = null;
         this.timeOffset = 0;
+        this.pausedTime = 0;
         console.log('🔄 Conductor reset');
     }
     
